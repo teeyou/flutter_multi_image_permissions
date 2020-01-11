@@ -11,8 +11,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Asset> images;
-  String _error;
+  List<Asset> images = List<Asset>();
 
   @override
   void initState() {
@@ -63,24 +62,16 @@ class _MyAppState extends State<MyApp> {
     bool check = await checkPermission();
 
     if(check) {
-      print("1");
-      setState(() {
-        images = List<Asset>();
-      });
-
-      print("2");
-      List<Asset> resultList;
       String error;
 
       try {
-        resultList = await MultiImagePicker.pickImages(
-          maxImages: 300,
+        images = await MultiImagePicker.pickImages(
+          maxImages: 1,
         );
-        print("3");
+
       } on Exception catch (e) {
 
         error = e.toString();
-        print("4");
       }
 
       // If the widget was removed from the tree while the asynchronous platform
@@ -88,12 +79,6 @@ class _MyAppState extends State<MyApp> {
       // setState to update our non-existent appearance.
       if (!mounted) return;
 
-      setState(() {
-        print("5");
-        images = resultList;
-        if (error == null) _error = 'No Error Dectected';
-        print("6");
-      });
     } else {
       requestPermission();
     }
@@ -109,17 +94,32 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: <Widget>[
-            Center(child: Text('Error: $_error')),
-            RaisedButton(
-              child: Text("Pick images"),
-              onPressed: loadAssets,
+//            RaisedButton(
+//              child: Text("Pick images"),
+//              onPressed: loadAssets,
+//            ),
+            GestureDetector(
+              onTap: loadAssets,
+              child: Container(
+                width: 150.0,
+                height: 150.0,
+                color: Colors.black12,
+                child: setImage(),
+//                AssetThumb(width: 150, height: 150, asset: images[0],
+//                ),
+              ),
             ),
-            Expanded(
-              child: buildGridView(images),
-            )
           ],
         ),
       ),
     );
+  }
+
+  Widget setImage() {
+    if(images != null && images.length > 0) {
+      return AssetThumb(width: 150, height: 150, asset: images[0],);
+    } else {
+      return Icon(Icons.add,);
+    }
   }
 }
